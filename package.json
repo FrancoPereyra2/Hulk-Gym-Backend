@@ -1,0 +1,38 @@
+{
+  "name": "gimnasio-backend",
+  "version": "1.0.0",
+  "description": "Backend para sistema de gestión de gimnasio HULK GYM",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon --quiet index.js"
+  },
+  "keywords": [
+    "gimnasio",
+    "backend",
+    "api",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.19",
+    "dotenv": "^16.3.1",
+    "express": "^4.22.1",
+    "express-validator": "^7.3.1",
+    "firebase-admin": "^13.6.0",
+    "google-auth-library": "^10.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "nodemailer": "^7.0.11",
+    "resend": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

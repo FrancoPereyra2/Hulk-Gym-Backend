@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HULK GYM API - Backend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .status {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .endpoints {
+            margin-top: 30px;
+        }
+        .endpoint-group {
+            margin-bottom: 25px;
+        }
+        .endpoint-group h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85rem;
+        }
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: black; }
+        .patch { background: #17a2b8; color: white; }
+        .delete { background: #dc3545; color: white; }
+        .path {
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 HULK GYM API</h1>
+        <p class="subtitle">Sistema de gestión de gimnasio - Backend API</p>
+        <div class="status">🟢 Servidor activo</div>
+        
+        <div class="endpoints">
+            <div class="endpoint-group">
+                <h3>🔐 Autenticación</h3>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/login</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/register</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/activar</span>
+                </div>
+            </div>
+
+            <div class="endpoint-group">
+                <h3>👥 Clientes</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/clientes</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/clientes</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/clientes/:id</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/clientes/:id</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/clientes/:id</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/clientes/:id/pago</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/clientes/:id/renovar</span>
+                </div>
+            </div>
+
+            <div class="endpoint-group">
+                <h3>🏋️ Rutinas</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/rutinas</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/rutinas</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/rutinas/:id</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/rutinas/:id</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/rutinas/:id</span>
+                </div>
+            </div>
+
+            <div class="endpoint-group">
+                <h3>📧 Emails</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/emails</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/emails/vencidas</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/emails/:id</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
