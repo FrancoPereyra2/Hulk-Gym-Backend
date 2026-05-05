@@ -25,7 +25,7 @@ app.use(cors({
     'http://localhost:5174', 
     'http://127.0.0.1:5173', 
     'http://127.0.0.1:5174',
-    'https://hulkgym-fitness.netlify.app/'],
+    'https://hulkgym-fitness.netlify.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
