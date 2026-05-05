@@ -24,7 +24,8 @@ app.use(cors({
   origin: ['http://localhost:5173', 
     'http://localhost:5174', 
     'http://127.0.0.1:5173', 
-    'http://127.0.0.1:5174'],
+    'http://127.0.0.1:5174',
+    'https://hulkgym-fitness.netlify.app/'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -63,7 +64,10 @@ app.use((req, res) => {
   res.status(404).json({ mensaje: "Endpoint no encontrado" });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
+
+export default app;
