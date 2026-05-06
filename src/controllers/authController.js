@@ -72,7 +72,11 @@ const crearTransporteEmail = () => {
 
 const enviarEmailBienvenida = async (usuario, passwordTemporal, tokenCambio) => {
   const transporter = crearTransporteEmail();
-  const frontendUrl = process.env.FRONTEND_URL || process.env.FRONTEND_URL_ALT || 'http://localhost:5173';
+  const frontendUrl = (
+  process.env.FRONTEND_URL ||
+  process.env.FRONTEND_URL_ALT ||
+  'https://hulkgym-fitness.netlify.app'
+).replace(/\/+$/, '');
   const urlCambioPassword = `${frontendUrl}/login?token=${tokenCambio}&email=${usuario.email}`;
 
   const mailOptions = {
