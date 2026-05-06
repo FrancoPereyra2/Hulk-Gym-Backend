@@ -212,17 +212,17 @@ export const registrarClientePorAdmin = async (req, res) => {
 
     res.json(response);
 
-    try {
-      await enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio);
-    } catch (emailError) {
-      console.error("❌ Error enviando email:", emailError.message);
-    }
-  } catch (err) {
-    res.status(500).json({ 
-      mensaje: "Error en el servidor", 
-      error: err.message
-    });
-  }
+enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio)
+  .catch((emailError) => {
+    console.error("❌ Error enviando email:", emailError.message);
+  });
+
+} catch (err) {
+  res.status(500).json({ 
+    mensaje: "Error en el servidor", 
+    error: err.message
+  });
+}
 };
 
 export const registrarNuevoAdmin = async (req, res) => {
