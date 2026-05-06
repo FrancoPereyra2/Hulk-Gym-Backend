@@ -210,6 +210,8 @@ export const registrarClientePorAdmin = async (req, res) => {
       }
     };
 
+    res.json(response);
+
     try {
       await enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio);
     } catch (emailError) {
@@ -221,9 +223,6 @@ export const registrarClientePorAdmin = async (req, res) => {
       error: err.message
     });
   }
-
-  res.json(response);
-
 };
 
 export const registrarNuevoAdmin = async (req, res) => {
