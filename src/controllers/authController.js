@@ -194,23 +194,29 @@ export const registrarClientePorAdmin = async (req, res) => {
 
     await nuevoCliente.save();
 
-    const response = {
-      mensaje: "Cliente registrado exitosamente.",
-      cliente: {
-        id: nuevoCliente._id,
-        nombre: `${nuevoCliente.nombre} ${nuevoCliente.apellido || ''}`.trim(),
-        dni: nuevoCliente.dni,
-        email: nuevoCliente.email,
-        fechaInicio: nuevoCliente.fechaInicio,
-        vencimiento: nuevoCliente.vencimiento,
-        precio: nuevoCliente.precio,
-        estadoCuenta: nuevoCliente.estadoCuenta,
-        pagoMesActual: nuevoCliente.pagoMesActual,
-        cuentaActivada: nuevoCliente.cuentaActivada
-      }
-    };
+await enviarEmailBienvenida(
+  nuevoCliente,
+  passwordTemporal,
+  tokenCambio
+);
 
-    res.json(response);
+const response = {
+  mensaje: "Cliente registrado exitosamente.",
+  cliente: {
+    id: nuevoCliente._id,
+    nombre: `${nuevoCliente.nombre} ${nuevoCliente.apellido || ''}`.trim(),
+    dni: nuevoCliente.dni,
+    email: nuevoCliente.email,
+    fechaInicio: nuevoCliente.fechaInicio,
+    vencimiento: nuevoCliente.vencimiento,
+    precio: nuevoCliente.precio,
+    estadoCuenta: nuevoCliente.estadoCuenta,
+    pagoMesActual: nuevoCliente.pagoMesActual,
+    cuentaActivada: nuevoCliente.cuentaActivada
+  }
+};
+
+res.json(response);
 
 enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio)
   .catch((emailError) => {
