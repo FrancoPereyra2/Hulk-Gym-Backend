@@ -31,6 +31,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.options("*", cors());
+
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.path}`);
   next();
