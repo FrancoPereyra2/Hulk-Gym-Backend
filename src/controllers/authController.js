@@ -94,11 +94,6 @@ const crearTransporteEmail = () => {
   });
 };
 
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-console.log("FRONTEND_URL_ALT:", process.env.FRONTEND_URL_ALT);
-console.log("frontendUrl resultado:", frontendUrl);
-console.log("urlCambioPassword:", urlCambioPassword);
-
 const enviarEmailBienvenida = async (usuario, passwordTemporal, tokenCambio) => {
   const transporter = crearTransporteEmail();
   const frontendUrl = (
