@@ -222,8 +222,6 @@ export const registrarClientePorAdmin = async (req, res) => {
 
     await nuevoCliente.save();
 
-    await enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio);
-
     const response = {
       mensaje: "Cliente registrado exitosamente.",
       cliente: {
