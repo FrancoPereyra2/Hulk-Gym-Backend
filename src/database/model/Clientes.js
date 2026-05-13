@@ -18,15 +18,15 @@ const clienteSchema = new mongoose.Schema({
   estadoCuenta: { type: String, default: "Activo" },
   pagoMesActual: { type: Boolean, default: false },
   ultimoMesPagado: {
-  type: String,
-  default: null,
-},
+    type: String,
+    default: null,
+  },
 
-rol: {
-  type: String,
-  enum: ["admin", "cliente"],
-  default: "cliente"
-},
+  rol: {
+    type: String,
+    enum: ["admin", "cliente"],
+    default: "cliente",
+  },
 
   fechaUltimoPago: { type: Date },
 
@@ -34,7 +34,9 @@ rol: {
   tokenCambioPassword: { type: String },
   tokenCambioPasswordExpira: { type: Date },
   cuentaActivada: { type: Boolean, default: false },
-  fechaActivacion: { type: Date }
+  fechaActivacion: { type: Date },
+  eliminado: { type: Boolean, default: false },
+  fechaEliminacion: { type: Date, default: null },
 });
 
 const Cliente = mongoose.model("Cliente", clienteSchema);

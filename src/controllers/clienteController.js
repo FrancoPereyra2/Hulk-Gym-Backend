@@ -21,7 +21,7 @@ const formatearCliente = (cliente) => ({
 
 export const obtenerClientes = async (req, res) => {
   try {
-    const clientes = await Cliente.find();
+    const clientes = await Cliente.find({ eliminado: { $ne: true } });
     
     const clientesFormateados = clientes.map(formatearCliente);
     
@@ -35,7 +35,7 @@ export const obtenerClientes = async (req, res) => {
 export const obtenerClientePorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const cliente = await Cliente.findById(id);
+    const clientes = await Cliente.find({ eliminado: { $ne: true } });
     
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
@@ -84,16 +84,16 @@ export const actualizarCliente = async (req, res) => {
 export const eliminarCliente = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const clienteEliminado = await Cliente.findByIdAndDelete(id);
-    
-    if (!clienteEliminado) {
+    const cliente = await Cliente.findByIdAndUpdate(
+      id,
+      { eliminado: true, fechaEliminacion: new Date() },
+      { new: true }
+    );
+    if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
     }
-    
     res.json({ mensaje: "Cliente eliminado correctamente" });
   } catch (error) {
-    console.error('❌ Error eliminando cliente:', error);
     res.status(500).json({ mensaje: "Error al eliminar cliente", error: error.message });
   }
 };
@@ -164,7 +164,7 @@ export const obtenerClientePorEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
-    const cliente = await Cliente.findOne({ email });
+    const clientes = await Cliente.find({ eliminado: { $ne: true } });
 
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
