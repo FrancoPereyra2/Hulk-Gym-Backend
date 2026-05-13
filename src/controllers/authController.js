@@ -491,18 +491,25 @@ export const googleAuth = async (req, res) => {
       const dniUnico = `G${Date.now().toString().slice(-8)}`;
 
       usuario = new Usuario({
-        nombre,
-        apellido,
-        dni: dniUnico,
-        email,
-        googleId: uid,
-        password: null,
-        rol: "admin",
-        cuentaActivada: true,
-        fechaActivacion: new Date()
-      });
+  nombre,
+  apellido,
+  dni: dniUnico,
+  email,
+  googleId: uid,
+  password: hashedPassword,
+  rol: "admin",
+  cuentaActivada: true,
+  fechaActivacion: new Date(),
+  tokenCambioPassword: tokenCambio,
+  tokenCambioPasswordExpira: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+});
 
-      await usuario.save();
+await usuario.save();
+
+// Enviar email para que establezca su propia contraseña
+enviarEmailBienvenida(usuario, passwordTemporal, tokenCambio).catch((err) => {
+  console.error("❌ Error enviando email bienvenida Google:", err.message);
+});
     } else {
       if (!usuario.googleId) {
         usuario.googleId = uid;
