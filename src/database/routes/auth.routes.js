@@ -10,7 +10,10 @@ import {
   registrarNuevoAdmin,
   cambiarPassword,
   verificarTokenCambioPassword,
-  googleAuth 
+  googleAuth,
+  listarAdmins,
+  editarAdmin,
+  eliminarAdmin
 } from "../../controllers/authController.js";
 import { verificarToken, soloAdmin } from "../../middlewares/authMiddleware.js";
 import { forgotPassword } from "../../controllers/authController.js";
@@ -28,6 +31,8 @@ router.get("/verificar-token", verificarTokenCambioPassword);
 router.post("/registrar-cliente", verificarToken, soloAdmin, registrarClientePorAdmin);
 router.post("/registrar-admin", verificarToken, soloAdmin, registrarNuevoAdmin);
 router.post("/forgot-password", forgotPassword);
-
+router.get("/admins", verificarToken, soloAdmin, listarAdmins);
+router.put("/admins/:id", verificarToken, soloAdmin, editarAdmin);
+router.delete("/admins/:id", verificarToken, soloAdmin, eliminarAdmin);
 
 export default router;

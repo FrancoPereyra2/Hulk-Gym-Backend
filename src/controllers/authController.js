@@ -704,3 +704,40 @@ RESTABLECER CONTRASEÑA
     res.status(500).json({ mensaje: "Error al enviar el correo" });
   }
 };
+
+export const listarAdmins = async (req, res) => {
+  try {
+    const admins = await Usuario.find({ rol: "admin" }).select("-password -refreshToken");
+    res.json(admins);
+  } catch (err) {
+    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+  }
+};
+
+export const editarAdmin = async (req, res) => {
+  try {
+    const { nombre, apellido, email, dni } = req.body;
+    const admin = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { nombre, apellido, email, dni },
+      { new: true }
+    ).select("-password -refreshToken");
+    if (!admin) return res.status(404).json({ mensaje: "Admin no encontrado" });
+    res.json(admin);
+  } catch (err) {
+    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+  }
+};
+
+export const eliminarAdmin = async (req, res) => {
+  try {
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ mensaje: "No podés eliminarte a vos mismo" });
+    }
+    const admin = await Usuario.findByIdAndDelete(req.params.id);
+    if (!admin) return res.status(404).json({ mensaje: "Admin no encontrado" });
+    res.json({ mensaje: "Administrador eliminado" });
+  } catch (err) {
+    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+  }
+};
