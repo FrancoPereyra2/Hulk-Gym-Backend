@@ -6,23 +6,6 @@ import admin from "firebase-admin";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 
-
-
-  
-    
-      
-        
-        
-        
-      
-    
-
-    
-  
-    
-  
-
-
 if (!admin.apps.length) {
   try {
     if (
@@ -49,64 +32,71 @@ if (!admin.apps.length) {
 
 const generarAccessToken = (usuario) => {
   return jwt.sign(
-    { 
-      id: usuario._id, 
+    {
+      id: usuario._id,
       rol: usuario.rol,
-      email: usuario.email
+      email: usuario.email,
     },
     process.env.JWT_SECRET || "mi_secreto",
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 };
 
 const generarRefreshToken = (usuario) => {
   return jwt.sign(
-    { 
-      id: usuario._id, 
+    {
+      id: usuario._id,
       rol: usuario.rol,
-      email: usuario.email 
+      email: usuario.email,
     },
     process.env.JWT_REFRESH_SECRET || "mi_refresh_secreto",
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 };
 
 const generarPasswordAleatorio = (longitud = 10) => {
-  const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
-  let password = '';
+  const caracteres =
+    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
+  let password = "";
   for (let i = 0; i < longitud; i++) {
-    password += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    password += caracteres.charAt(
+      Math.floor(Math.random() * caracteres.length),
+    );
   }
   return password;
 };
 
 const generarTokenCambioPassword = () => {
-  return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString("hex");
 };
 
 const crearTransporteEmail = () => {
   return nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+      pass: process.env.EMAIL_PASS,
+    },
   });
 };
 
-const enviarEmailBienvenida = async (usuario, passwordTemporal, tokenCambio) => {
+const enviarEmailBienvenida = async (
+  usuario,
+  passwordTemporal,
+  tokenCambio,
+) => {
   const transporter = crearTransporteEmail();
   const frontendUrl = (
-  process.env.FRONTEND_URL ||
-  process.env.FRONTEND_URL_ALT ||
-  'https://hulkgym-fitness.netlify.app'
-).replace(/\/+$/, '');
+    process.env.FRONTEND_URL ||
+    process.env.FRONTEND_URL_ALT ||
+    "https://hulkgym-fitness.netlify.app"
+  ).replace(/\/+$/, "");
   const urlCambioPassword = `${frontendUrl}/login?token=${tokenCambio}&email=${usuario.email}`;
 
   const mailOptions = {
     from: `"HULK GYM" <${process.env.EMAIL_USER}>`,
     to: usuario.email,
-    subject: '🏋️ ¡Bienvenido a HULK GYM! - Activa tu cuenta',
+    subject: "🏋️ ¡Bienvenido a HULK GYM! - Activa tu cuenta",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -128,21 +118,22 @@ const enviarEmailBienvenida = async (usuario, passwordTemporal, tokenCambio) => 
           <p style="color: #6c757d; font-size: 12px;">Este enlace expira en 7 días.</p>
         </div>
       </div>
-    `
+    `,
   };
   return transporter.sendMail(mailOptions);
 };
 
-
 export const verificarPrimerUsuario = async (req, res) => {
   try {
     const cantidadUsuarios = await Usuario.countDocuments();
-    res.json({ 
+    res.json({
       esPrimerUsuario: cantidadUsuarios === 0,
-      totalUsuarios: cantidadUsuarios 
+      totalUsuarios: cantidadUsuarios,
     });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
@@ -150,8 +141,9 @@ export const registrarPrimerAdmin = async (req, res) => {
   try {
     const cantidadUsuarios = await Usuario.countDocuments();
     if (cantidadUsuarios > 0) {
-      return res.status(403).json({ 
-        mensaje: "Ya existe un administrador. El registro público está deshabilitado." 
+      return res.status(403).json({
+        mensaje:
+          "Ya existe un administrador. El registro público está deshabilitado.",
       });
     }
     const { nombre, apellido, dni, email, password } = req.body;
@@ -165,28 +157,33 @@ export const registrarPrimerAdmin = async (req, res) => {
       password: hashedPassword,
       rol: "admin",
       cuentaActivada: true,
-      fechaActivacion: new Date()
+      fechaActivacion: new Date(),
     });
     await nuevoAdmin.save();
-    res.json({ 
-      mensaje: "Administrador registrado exitosamente", 
+    res.json({
+      mensaje: "Administrador registrado exitosamente",
       usuario: {
         id: nuevoAdmin._id,
         nombre: nuevoAdmin.nombre,
         email: nuevoAdmin.email,
-        rol: nuevoAdmin.rol
-      }
+        rol: nuevoAdmin.rol,
+      },
     });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
 export const registrarClientePorAdmin = async (req, res) => {
   try {
-    const { nombre, apellido, dni, email, fechaInicio, vencimiento, precio } = req.body;
+    const { nombre, apellido, dni, email, fechaInicio, vencimiento, precio } =
+      req.body;
     if (!req.user || req.user.rol !== "admin") {
-      return res.status(403).json({ mensaje: "No tienes permisos para registrar clientes" });
+      return res
+        .status(403)
+        .json({ mensaje: "No tienes permisos para registrar clientes" });
     }
     const existeCliente = await Cliente.findOne({ email: email.toLowerCase() });
     if (existeCliente) {
@@ -200,12 +197,14 @@ export const registrarClientePorAdmin = async (req, res) => {
     const tokenCambio = generarTokenCambioPassword();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(passwordTemporal, salt);
-    const hoy = new Date().toISOString().split('T')[0];
-    const unMesDespues = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const hoy = new Date().toISOString().split("T")[0];
+    const unMesDespues = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
 
     const nuevoCliente = new Cliente({
-      nombre: nombre || '',
-      apellido: apellido || '',
+      nombre: nombre || "",
+      apellido: apellido || "",
       dni,
       email: email.toLowerCase(),
       password: hashedPassword,
@@ -217,53 +216,51 @@ export const registrarClientePorAdmin = async (req, res) => {
       pagoMesActual: false,
       fechaInicio: fechaInicio || hoy,
       vencimiento: vencimiento || unMesDespues,
-      precio: precio || 10000
+      precio: precio || 10000,
     });
 
     await nuevoCliente.save();
 
-await enviarEmailBienvenida(
-  nuevoCliente,
-  passwordTemporal,
-  tokenCambio
-);
+    await enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio);
 
-const response = {
-  mensaje: "Cliente registrado exitosamente.",
-  cliente: {
-    id: nuevoCliente._id,
-    nombre: `${nuevoCliente.nombre} ${nuevoCliente.apellido || ''}`.trim(),
-    dni: nuevoCliente.dni,
-    email: nuevoCliente.email,
-    fechaInicio: nuevoCliente.fechaInicio,
-    vencimiento: nuevoCliente.vencimiento,
-    precio: nuevoCliente.precio,
-    estadoCuenta: nuevoCliente.estadoCuenta,
-    pagoMesActual: nuevoCliente.pagoMesActual,
-    cuentaActivada: nuevoCliente.cuentaActivada
+    const response = {
+      mensaje: "Cliente registrado exitosamente.",
+      cliente: {
+        id: nuevoCliente._id,
+        nombre: `${nuevoCliente.nombre} ${nuevoCliente.apellido || ""}`.trim(),
+        dni: nuevoCliente.dni,
+        email: nuevoCliente.email,
+        fechaInicio: nuevoCliente.fechaInicio,
+        vencimiento: nuevoCliente.vencimiento,
+        precio: nuevoCliente.precio,
+        estadoCuenta: nuevoCliente.estadoCuenta,
+        pagoMesActual: nuevoCliente.pagoMesActual,
+        cuentaActivada: nuevoCliente.cuentaActivada,
+      },
+    };
+
+    res.json(response);
+
+    enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio).catch(
+      (emailError) => {
+        console.error("❌ Error enviando email:", emailError.message);
+      },
+    );
+  } catch (err) {
+    res.status(500).json({
+      mensaje: "Error en el servidor",
+      error: err.message,
+    });
   }
-};
-
-res.json(response);
-
-enviarEmailBienvenida(nuevoCliente, passwordTemporal, tokenCambio)
-  .catch((emailError) => {
-    console.error("❌ Error enviando email:", emailError.message);
-  });
-
-} catch (err) {
-  res.status(500).json({ 
-    mensaje: "Error en el servidor", 
-    error: err.message
-  });
-}
 };
 
 export const registrarNuevoAdmin = async (req, res) => {
   try {
     const { nombre, apellido, dni, email, password } = req.body;
     if (req.user?.rol !== "admin") {
-      return res.status(403).json({ mensaje: "No tienes permisos para registrar administradores" });
+      return res
+        .status(403)
+        .json({ mensaje: "No tienes permisos para registrar administradores" });
     }
     const existe = await Usuario.findOne({ email });
     if (existe) {
@@ -279,20 +276,22 @@ export const registrarNuevoAdmin = async (req, res) => {
       password: hashedPassword,
       rol: "admin",
       cuentaActivada: true,
-      fechaActivacion: new Date()
+      fechaActivacion: new Date(),
     });
     await nuevoAdmin.save();
-    res.json({ 
+    res.json({
       mensaje: "Administrador registrado exitosamente",
       usuario: {
         id: nuevoAdmin._id,
         nombre: nuevoAdmin.nombre,
         email: nuevoAdmin.email,
-        rol: nuevoAdmin.rol
-      }
+        rol: nuevoAdmin.rol,
+      },
     });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
@@ -301,30 +300,32 @@ export const registrarUsuario = async (req, res) => {
   if (cantidadUsuarios === 0) {
     return registrarPrimerAdmin(req, res);
   }
-  return res.status(403).json({ mensaje: "El registro público está deshabilitado." });
+  return res
+    .status(403)
+    .json({ mensaje: "El registro público está deshabilitado." });
 };
-
 
 export const cambiarPassword = async (req, res) => {
   try {
     const { token, email, nuevaPassword } = req.body;
-    let usuario = await Cliente.findOne({ 
+    let usuario = await Cliente.findOne({
       email,
       tokenCambioPassword: token,
-      tokenCambioPasswordExpira: { $gt: new Date() }
+      tokenCambioPasswordExpira: { $gt: new Date() },
     });
     let esCliente = true;
     if (!usuario) {
-      usuario = await Usuario.findOne({ 
+      usuario = await Usuario.findOne({
         email,
         tokenCambioPassword: token,
-        tokenCambioPasswordExpira: { $gt: new Date() }
+        tokenCambioPasswordExpira: { $gt: new Date() },
       });
       esCliente = false;
     }
     if (!usuario) {
-      return res.status(400).json({ 
-        mensaje: "Token inválido o expirado. Solicita un nuevo enlace al administrador." 
+      return res.status(400).json({
+        mensaje:
+          "Token inválido o expirado. Solicita un nuevo enlace al administrador.",
       });
     }
     const salt = await bcrypt.genSalt(10);
@@ -338,101 +339,106 @@ export const cambiarPassword = async (req, res) => {
     await usuario.save();
     res.json({ mensaje: "Contraseña actualizada exitosamente." });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
 export const verificarTokenCambioPassword = async (req, res) => {
   try {
     const { token, email } = req.query;
-    let usuario = await Cliente.findOne({ 
+    let usuario = await Cliente.findOne({
       email,
       tokenCambioPassword: token,
-      tokenCambioPasswordExpira: { $gt: new Date() }
+      tokenCambioPasswordExpira: { $gt: new Date() },
     });
     if (!usuario) {
-      usuario = await Usuario.findOne({ 
+      usuario = await Usuario.findOne({
         email,
         tokenCambioPassword: token,
-        tokenCambioPasswordExpira: { $gt: new Date() }
+        tokenCambioPasswordExpira: { $gt: new Date() },
       });
     }
     if (!usuario) {
-      return res.status(400).json({ valido: false, mensaje: "Token inválido o expirado" });
+      return res
+        .status(400)
+        .json({ valido: false, mensaje: "Token inválido o expirado" });
     }
     res.json({ valido: true, nombre: usuario.nombre, email: usuario.email });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
-
 
 export const loginUsuario = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     let usuario = await Usuario.findOne({ email });
     let esCliente = false;
-    
+
     if (!usuario) {
       usuario = await Cliente.findOne({ email });
       esCliente = true;
     }
-    
+
     if (!usuario) {
       return res.status(404).json({ mensaje: "Usuario no encontrado" });
     }
-    
+
     const esValida = await bcrypt.compare(password, usuario.password);
     if (!esValida) {
       return res.status(400).json({ mensaje: "Contraseña incorrecta" });
     }
-    
+
     if (usuario.passwordTemporal) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         mensaje: "Debes cambiar tu contraseña temporal antes de continuar",
         requiereCambioPassword: true,
         tokenCambio: usuario.tokenCambioPassword,
-        email: usuario.email
+        email: usuario.email,
       });
     }
-    
-    const rol = esCliente ? 'cliente' : usuario.rol;
+
+    const rol = esCliente ? "cliente" : usuario.rol;
     const accessToken = generarAccessToken({ ...usuario.toObject(), rol });
     const refreshToken = generarRefreshToken({ ...usuario.toObject(), rol });
-    
+
     usuario.refreshToken = refreshToken;
     await usuario.save();
-    
- 
-    res.json({ 
-      mensaje: "Login exitoso", 
-      accessToken, 
-      refreshToken, 
+
+    res.json({
+      mensaje: "Login exitoso",
+      accessToken,
+      refreshToken,
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,
         apellido: usuario.apellido,
-        dni: usuario.dni, 
+        dni: usuario.dni,
         email: usuario.email,
         rol: rol,
-        membresia: esCliente ? {
-          fechaInicio: usuario.fechaInicio,
-          vencimiento: usuario.vencimiento,
-          precio: usuario.precio
-        } : null
-      }
+        membresia: esCliente
+          ? {
+              fechaInicio: usuario.fechaInicio,
+              vencimiento: usuario.vencimiento,
+              precio: usuario.precio,
+            }
+          : null,
+      },
     });
-    
   } catch (err) {
-    console.error('❌ Error en login:', err);
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    console.error("❌ Error en login:", err);
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
-
 export const googleAuth = async (req, res) => {
-
   try {
     const { idToken } = req.body;
 
@@ -464,23 +470,26 @@ export const googleAuth = async (req, res) => {
     let puedeCrearAdmin = false;
     let adminSolicitante = null;
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       try {
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "mi_secreto");
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || "mi_secreto",
+        );
         adminSolicitante = await Usuario.findById(decoded.id);
         if (adminSolicitante && adminSolicitante.rol === "admin") {
           puedeCrearAdmin = true;
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     }
 
     if (!usuario) {
       if (!esPrimerUsuario && !puedeCrearAdmin) {
         return res.status(404).json({
-          mensaje: "No existe una cuenta registrada con este email. El administrador debe registrarte primero.",
-          emailNoRegistrado: true
+          mensaje:
+            "No existe una cuenta registrada con este email. El administrador debe registrarte primero.",
+          emailNoRegistrado: true,
         });
       }
 
@@ -489,27 +498,38 @@ export const googleAuth = async (req, res) => {
       const nombre = partes[0] || "Usuario";
       const apellido = partes.slice(1).join(" ") || "Google";
       const dniUnico = `G${Date.now().toString().slice(-8)}`;
+      const passwordTemporal = generarPasswordAleatorio();
+      const tokenCambio = generarTokenCambioPassword();
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(passwordTemporal, salt);
 
       usuario = new Usuario({
-  nombre,
-  apellido,
-  dni: dniUnico,
-  email,
-  googleId: uid,
-  password: hashedPassword,
-  rol: "admin",
-  cuentaActivada: true,
-  fechaActivacion: new Date(),
-  tokenCambioPassword: tokenCambio,
-  tokenCambioPasswordExpira: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-});
+        nombre,
+        apellido,
+        dni: dniUnico,
+        email,
+        googleId: uid,
+        password: hashedPassword,
+        rol: "admin",
+        cuentaActivada: true,
+        fechaActivacion: new Date(),
+        tokenCambioPassword: tokenCambio,
+        tokenCambioPasswordExpira: new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000,
+        ),
+      });
 
-await usuario.save();
+      await usuario.save();
 
-// Enviar email para que establezca su propia contraseña
-enviarEmailBienvenida(usuario, passwordTemporal, tokenCambio).catch((err) => {
-  console.error("❌ Error enviando email bienvenida Google:", err.message);
-});
+      // Enviar email para que establezca su propia contraseña
+      enviarEmailBienvenida(usuario, passwordTemporal, tokenCambio).catch(
+        (err) => {
+          console.error(
+            "❌ Error enviando email bienvenida Google:",
+            err.message,
+          );
+        },
+      );
     } else {
       if (!usuario.googleId) {
         usuario.googleId = uid;
@@ -517,8 +537,10 @@ enviarEmailBienvenida(usuario, passwordTemporal, tokenCambio).catch((err) => {
       }
     }
 
-    const rol = esCliente ? 'cliente' : usuario.rol;
-    const plainUser = usuario.toObject ? usuario.toObject() : { ...usuario._doc };
+    const rol = esCliente ? "cliente" : usuario.rol;
+    const plainUser = usuario.toObject
+      ? usuario.toObject()
+      : { ...usuario._doc };
     const accessToken = generarAccessToken({ ...plainUser, rol });
     const refreshToken = generarRefreshToken({ ...plainUser, rol });
 
@@ -537,29 +559,33 @@ enviarEmailBienvenida(usuario, passwordTemporal, tokenCambio).catch((err) => {
         email: usuario.email,
         rol: rol,
         googleId: usuario.googleId,
-        membresia: esCliente ? {
-          fechaInicio: usuario.fechaInicio,
-          vencimiento: usuario.vencimiento,
-          precio: usuario.precio
-        } : null
+        membresia: esCliente
+          ? {
+              fechaInicio: usuario.fechaInicio,
+              vencimiento: usuario.vencimiento,
+              precio: usuario.precio,
+            }
+          : null,
       },
     });
-
   } catch (error) {
     console.error("❌ Error en googleAuth:", error);
     res.status(500).json({
       mensaje: "Error en el servidor",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-
 export const refreshToken = async (req, res) => {
   const { token } = req.body;
-  if (!token) return res.status(401).json({ mensaje: "Refresh token requerido" });
+  if (!token)
+    return res.status(401).json({ mensaje: "Refresh token requerido" });
   try {
-    const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET || "mi_refresh_secreto");
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET || "mi_refresh_secreto",
+    );
     const usuario = await Usuario.findById(payload.id);
     if (!usuario || usuario.refreshToken !== token) {
       return res.status(403).json({ mensaje: "Refresh token inválido" });
@@ -575,12 +601,15 @@ export const logoutUsuario = async (req, res) => {
   try {
     const { id } = req.user;
     const usuario = await Usuario.findById(id);
-    if (!usuario) return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    if (!usuario)
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
     usuario.refreshToken = null;
     await usuario.save();
     res.json({ mensaje: "Logout exitoso" });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: error.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: error.message });
   }
 };
 
@@ -604,9 +633,7 @@ export const forgotPassword = async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
 
     usuario.tokenCambioPassword = token;
-    usuario.tokenCambioPasswordExpira = new Date(
-      Date.now() + 60 * 60 * 1000
-    );
+    usuario.tokenCambioPasswordExpira = new Date(Date.now() + 60 * 60 * 1000);
 
     await usuario.save();
 
@@ -677,4 +704,3 @@ RESTABLECER CONTRASEÑA
     res.status(500).json({ mensaje: "Error al enviar el correo" });
   }
 };
-
