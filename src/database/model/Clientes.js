@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const clienteSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
   apellido: { type: String, default: "" },
-  dni: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
+  dni: { type: String, required: true },
+  email: { type: String, required: true },
   password: { type: String },
   googleId: { type: String, default: null },
   refreshToken: { type: String },

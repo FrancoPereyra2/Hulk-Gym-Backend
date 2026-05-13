@@ -186,11 +186,12 @@ export const registrarClientePorAdmin = async (req, res) => {
         .json({ mensaje: "No tienes permisos para registrar clientes" });
     }
     const existeCliente = await Cliente.findOne({ email: email.toLowerCase() });
-    if (existeCliente) {
+    if (existeCliente && !existeCliente.eliminado) {
       return res.status(400).json({ mensaje: "El email ya está registrado" });
     }
+
     const existeDni = await Cliente.findOne({ dni });
-    if (existeDni) {
+    if (existeDni && !existeDni.eliminado) {
       return res.status(400).json({ mensaje: "El DNI ya está registrado" });
     }
     const passwordTemporal = generarPasswordAleatorio();
@@ -707,10 +708,14 @@ RESTABLECER CONTRASEÑA
 
 export const listarAdmins = async (req, res) => {
   try {
-    const admins = await Usuario.find({ rol: "admin" }).select("-password -refreshToken");
+    const admins = await Usuario.find({ rol: "admin" }).select(
+      "-password -refreshToken",
+    );
     res.json(admins);
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
@@ -720,24 +725,30 @@ export const editarAdmin = async (req, res) => {
     const admin = await Usuario.findByIdAndUpdate(
       req.params.id,
       { nombre, apellido, email, dni },
-      { new: true }
+      { new: true },
     ).select("-password -refreshToken");
     if (!admin) return res.status(404).json({ mensaje: "Admin no encontrado" });
     res.json(admin);
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
 
 export const eliminarAdmin = async (req, res) => {
   try {
     if (req.params.id === req.user.id) {
-      return res.status(400).json({ mensaje: "No podés eliminarte a vos mismo" });
+      return res
+        .status(400)
+        .json({ mensaje: "No podés eliminarte a vos mismo" });
     }
     const admin = await Usuario.findByIdAndDelete(req.params.id);
     if (!admin) return res.status(404).json({ mensaje: "Admin no encontrado" });
     res.json({ mensaje: "Administrador eliminado" });
   } catch (err) {
-    res.status(500).json({ mensaje: "Error en el servidor", error: err.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error en el servidor", error: err.message });
   }
 };
