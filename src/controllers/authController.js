@@ -380,7 +380,7 @@ export const loginUsuario = async (req, res) => {
     let esCliente = false;
 
     if (!usuario) {
-      usuario = await Cliente.findOne({ email });
+      usuario = await Cliente.findOne({ email, eliminado: {$ne: true} });
       esCliente = true;
     }
 
@@ -616,7 +616,7 @@ export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    let usuario = await Cliente.findOne({ email });
+    let usuario = await Cliente.findOne({ email, eliminado: { $ne: true } });
 
     if (!usuario) {
       usuario = await Usuario.findOne({ email });
