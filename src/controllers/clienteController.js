@@ -11,48 +11,59 @@ const formatearCliente = (cliente) => ({
   vencimiento: cliente.vencimiento,
   precio: cliente.precio || 10000,
   estadoCuenta: cliente.estadoCuenta || "Activo",
-  ultimoMesPagado: cliente.ultimoMesPagado || null, 
+  ultimoMesPagado: cliente.ultimoMesPagado || null,
   cuentaActivada: cliente.cuentaActivada || false,
   fechaUltimoPago: cliente.fechaUltimoPago || null,
-  usuarioId: cliente.usuarioId
+  usuarioId: cliente.usuarioId,
 });
-
-
 
 export const obtenerClientes = async (req, res) => {
   try {
     const clientes = await Cliente.find({ eliminado: { $ne: true } });
-    
+
     const clientesFormateados = clientes.map(formatearCliente);
-    
+
     res.json(clientesFormateados);
   } catch (error) {
-    console.error('❌ Error obteniendo clientes:', error);
-    res.status(500).json({ mensaje: "Error al obtener clientes", error: error.message });
+    console.error("❌ Error obteniendo clientes:", error);
+    res
+      .status(500)
+      .json({ mensaje: "Error al obtener clientes", error: error.message });
   }
 };
 
 export const obtenerClientePorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const cliente = await Cliente.findOne({ _id: id, eliminado: { $ne: true } });
-    
+    const cliente = await Cliente.findOne({
+      _id: id,
+      eliminado: { $ne: true },
+    });
+
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
     }
-    
-    res.json(formatearCliente(cliente));
 
+    res.json(formatearCliente(cliente));
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener cliente", error: error.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error al obtener cliente", error: error.message });
   }
 };
-
 
 export const actualizarCliente = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, dni, email, fechaInicio, vencimiento, precio, estadoCuenta } = req.body;
+    const {
+      nombre,
+      dni,
+      email,
+      fechaInicio,
+      vencimiento,
+      precio,
+      estadoCuenta,
+    } = req.body;
 
     const clienteActualizado = await Cliente.findByIdAndUpdate(
       id,
@@ -65,7 +76,7 @@ export const actualizarCliente = async (req, res) => {
         precio,
         estadoCuenta,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!clienteActualizado) {
@@ -73,13 +84,13 @@ export const actualizarCliente = async (req, res) => {
     }
 
     res.json(formatearCliente(clienteActualizado));
-
   } catch (error) {
-    console.error('❌ Error actualizando cliente:', error);
-    res.status(500).json({ mensaje: "Error al actualizar cliente", error: error.message });
+    console.error("❌ Error actualizando cliente:", error);
+    res
+      .status(500)
+      .json({ mensaje: "Error al actualizar cliente", error: error.message });
   }
 };
-
 
 export const eliminarCliente = async (req, res) => {
   try {
@@ -87,49 +98,52 @@ export const eliminarCliente = async (req, res) => {
     const cliente = await Cliente.findByIdAndUpdate(
       id,
       { eliminado: true, fechaEliminacion: new Date() },
-      { new: true }
+      { new: true },
     );
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
     }
     res.json({ mensaje: "Cliente eliminado correctamente" });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al eliminar cliente", error: error.message });
+    res
+      .status(500)
+      .json({ mensaje: "Error al eliminar cliente", error: error.message });
   }
 };
 
 export const renovarMembresia = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const hoy = new Date();
-    const nuevaFechaInicio = `${hoy.getDate().toString().padStart(2, '0')}/${(hoy.getMonth() + 1).toString().padStart(2, '0')}/${hoy.getFullYear()}`;
-    
+    const nuevaFechaInicio = `${hoy.getDate().toString().padStart(2, "0")}/${(hoy.getMonth() + 1).toString().padStart(2, "0")}/${hoy.getFullYear()}`;
+
     const fechaVencimiento = new Date(hoy);
     fechaVencimiento.setDate(fechaVencimiento.getDate() + 30);
-    const nuevoVencimiento = `${fechaVencimiento.getDate().toString().padStart(2, '0')}/${(fechaVencimiento.getMonth() + 1).toString().padStart(2, '0')}/${fechaVencimiento.getFullYear()}`;
-    
+    const nuevoVencimiento = `${fechaVencimiento.getDate().toString().padStart(2, "0")}/${(fechaVencimiento.getMonth() + 1).toString().padStart(2, "0")}/${fechaVencimiento.getFullYear()}`;
+
     const clienteActualizado = await Cliente.findByIdAndUpdate(
       id,
       {
         fechaInicio: nuevaFechaInicio,
         vencimiento: nuevoVencimiento,
-        estadoCuenta: 'Activo',
+        estadoCuenta: "Activo",
         pagoMesActual: true,
-        fechaUltimoPago: new Date()
+        fechaUltimoPago: new Date(),
       },
-      { new: true }
+      { new: true },
     );
-    
+
     if (!clienteActualizado) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
     }
-    
-    res.json(formatearCliente(clienteActualizado));
 
+    res.json(formatearCliente(clienteActualizado));
   } catch (error) {
-    console.error('❌ Error renovando membresía:', error);
-    res.status(500).json({ mensaje: "Error al renovar membresía", error: error.message });
+    console.error("❌ Error renovando membresía:", error);
+    res
+      .status(500)
+      .json({ mensaje: "Error al renovar membresía", error: error.message });
   }
 };
 
@@ -153,7 +167,7 @@ export const togglePagoMes = async (req, res) => {
 
     await cliente.save();
 
-    res.json(cliente); 
+    res.json(cliente);
   } catch (error) {
     console.error("❌ Error actualizando pago:", error);
     res.status(500).json({ mensaje: "Error al actualizar pago" });
@@ -171,17 +185,13 @@ export const obtenerClientePorEmail = async (req, res) => {
     }
 
     res.json(formatearCliente(cliente));
-
   } catch (error) {
     res.status(500).json({
       mensaje: "Error al obtener cliente",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
-
-
 
 export default {
   obtenerClientes,
