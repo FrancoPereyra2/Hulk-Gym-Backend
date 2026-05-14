@@ -35,7 +35,7 @@ export const obtenerClientes = async (req, res) => {
 export const obtenerClientePorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const clientes = await Cliente.find({ eliminado: { $ne: true } });
+    const cliente = await Cliente.findOne({ _id: id, eliminado: { $ne: true } });
     
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
@@ -164,7 +164,7 @@ export const obtenerClientePorEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
-    const clientes = await Cliente.find({ eliminado: { $ne: true } });
+    const cliente = await Cliente.findOne({ email, eliminado: { $ne: true } });
 
     if (!cliente) {
       return res.status(404).json({ mensaje: "Cliente no encontrado" });
